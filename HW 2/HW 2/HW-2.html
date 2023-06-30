@@ -11,7 +11,7 @@
 
 <meta name="author" content="DYLAN FRANCISCO" />
 
-<meta name="date" content="2023-06-29" />
+<meta name="date" content="2023-06-30" />
 
 <title>Homework 2</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Homework 2</h1>
 <h4 class="author">DYLAN FRANCISCO</h4>
-<h4 class="date">June 29, 2023</h4>
+<h4 class="date">June 30, 2023</h4>
 
 </div>
 
@@ -689,36 +689,197 @@ flightstrav1</code></pre>
 ## #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
 <p>Flights 51N380HA and 51N384HA flew the longest distance. Flights
 3833N13989 and 4193N14972 flew the shortest distance.</p>
+<p>Also glad I attended the pipeline lecture before doing this because
+it made it much easier.</p>
 </div>
 </div>
 <div id="chapter-3-pg.-54" class="section level1">
 <h1>Chapter 3 (Pg. 54)</h1>
 <div id="exercise-2-2" class="section level2">
 <h2>Exercise 2</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>select(flights, dep_time, arr_time, dep_time)</code></pre>
+<pre><code>## # A tibble: 336,776 × 2
+##    dep_time arr_time
+##       &lt;int&gt;    &lt;int&gt;
+##  1      517      830
+##  2      533      850
+##  3      542      923
+##  4      544     1004
+##  5      554      812
+##  6      554      740
+##  7      555      913
+##  8      557      709
+##  9      557      838
+## 10      558      753
+## # ℹ 336,766 more rows</code></pre>
+<p>If you include the name of variable multiple times, it will only show
+the first time.</p>
 </div>
 <div id="exercise-4-1" class="section level2">
 <h2>Exercise 4</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>select(flights, contains(&quot;TIME&quot;))</code></pre>
+<pre><code>## # A tibble: 336,776 × 6
+##    dep_time sched_dep_time arr_time sched_arr_time air_time time_hour          
+##       &lt;int&gt;          &lt;int&gt;    &lt;int&gt;          &lt;int&gt;    &lt;dbl&gt; &lt;dttm&gt;             
+##  1      517            515      830            819      227 2013-01-01 05:00:00
+##  2      533            529      850            830      227 2013-01-01 05:00:00
+##  3      542            540      923            850      160 2013-01-01 05:00:00
+##  4      544            545     1004           1022      183 2013-01-01 05:00:00
+##  5      554            600      812            837      116 2013-01-01 06:00:00
+##  6      554            558      740            728      150 2013-01-01 05:00:00
+##  7      555            600      913            854      158 2013-01-01 06:00:00
+##  8      557            600      709            723       53 2013-01-01 06:00:00
+##  9      557            600      838            846      140 2013-01-01 06:00:00
+## 10      558            600      753            745      138 2013-01-01 06:00:00
+## # ℹ 336,766 more rows</code></pre>
+<pre class="r"><code>select(flights, contains(toupper(&quot;time&quot;)))</code></pre>
+<pre><code>## # A tibble: 336,776 × 6
+##    dep_time sched_dep_time arr_time sched_arr_time air_time time_hour          
+##       &lt;int&gt;          &lt;int&gt;    &lt;int&gt;          &lt;int&gt;    &lt;dbl&gt; &lt;dttm&gt;             
+##  1      517            515      830            819      227 2013-01-01 05:00:00
+##  2      533            529      850            830      227 2013-01-01 05:00:00
+##  3      542            540      923            850      160 2013-01-01 05:00:00
+##  4      544            545     1004           1022      183 2013-01-01 05:00:00
+##  5      554            600      812            837      116 2013-01-01 06:00:00
+##  6      554            558      740            728      150 2013-01-01 05:00:00
+##  7      555            600      913            854      158 2013-01-01 06:00:00
+##  8      557            600      709            723       53 2013-01-01 06:00:00
+##  9      557            600      838            846      140 2013-01-01 06:00:00
+## 10      558            600      753            745      138 2013-01-01 06:00:00
+## # ℹ 336,766 more rows</code></pre>
+<p>The results of using contains(“TIME”) did not really surprise me. It
+seems like the helper ignores case and displays anything with the word
+“time” int it, regardless of case. I tried to use toupper() to only
+search for uppercase “TIME” but could not get it to work.</p>
 </div>
 </div>
 <div id="chapter-3-pg.-58" class="section level1">
 <h1>Chapter 3 (Pg. 58)</h1>
 <div id="exercise-1-1" class="section level2">
 <h2>Exercise 1</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>flights8 &lt;- transmute(flights, dep_time,
+                      hour = dep_time%%100,
+                      minute = dep_time%%100,
+                      min_since_midnight = (hour*60) + minute)
+flights8</code></pre>
+<pre><code>## # A tibble: 336,776 × 4
+##    dep_time  hour minute min_since_midnight
+##       &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;              &lt;dbl&gt;
+##  1      517    17     17               1037
+##  2      533    33     33               2013
+##  3      542    42     42               2562
+##  4      544    44     44               2684
+##  5      554    54     54               3294
+##  6      554    54     54               3294
+##  7      555    55     55               3355
+##  8      557    57     57               3477
+##  9      557    57     57               3477
+## 10      558    58     58               3538
+## # ℹ 336,766 more rows</code></pre>
 </div>
 <div id="exercise-2-3" class="section level2">
 <h2>Exercise 2</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>flights9 &lt;- transmute(flights, air_time,
+                    arr_minus_dep = arr_time - dep_time)
+flights9</code></pre>
+<pre><code>## # A tibble: 336,776 × 2
+##    air_time arr_minus_dep
+##       &lt;dbl&gt;         &lt;int&gt;
+##  1      227           313
+##  2      227           317
+##  3      160           381
+##  4      183           460
+##  5      116           258
+##  6      150           186
+##  7      158           358
+##  8       53           152
+##  9      140           281
+## 10      138           195
+## # ℹ 336,766 more rows</code></pre>
+<pre class="r"><code>flights10 &lt;- transmute(flights, dep_hour = dep_time%%100,
+                       dep_minute = dep_time%%100,
+                       dep_min_after = (dep_hour*60) + dep_minute,
+                       arr_hour = arr_time%%100,
+                       arr_minute = arr_time%%100,
+                       arr_min_after = (arr_hour*60) + arr_minute,
+                       air_time, arr_minus_dep = arr_min_after - dep_min_after)
+
+                  
+flights10</code></pre>
+<pre><code>## # A tibble: 336,776 × 8
+##    dep_hour dep_minute dep_min_after arr_hour arr_minute arr_min_after air_time
+##       &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+##  1       17         17          1037       30         30          1830      227
+##  2       33         33          2013       50         50          3050      227
+##  3       42         42          2562       23         23          1403      160
+##  4       44         44          2684        4          4           244      183
+##  5       54         54          3294       12         12           732      116
+##  6       54         54          3294       40         40          2440      150
+##  7       55         55          3355       13         13           793      158
+##  8       57         57          3477        9          9           549       53
+##  9       57         57          3477       38         38          2318      140
+## 10       58         58          3538       53         53          3233      138
+## # ℹ 336,766 more rows
+## # ℹ 1 more variable: arr_minus_dep &lt;dbl&gt;</code></pre>
+<p>Before running the code, I would expect the numbers to be the
+same.</p>
+<p>After running, I noticed they are not, because arr_time and dep_time
+are measured in HHMM and air_time is in minutes.I thought a solution
+would be to convert the arrival and depature times to minutes and then
+do the calculation, but that did not end up working, however, I think
+that is still the solution.</p>
 </div>
 <div id="exercise-3-2" class="section level2">
 <h2>Exercise 3</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>flights11 &lt;- transmute(flights, dep_time,
+                       sched_dep_time,
+                       dep_delay)
+flights11</code></pre>
+<pre><code>## # A tibble: 336,776 × 3
+##    dep_time sched_dep_time dep_delay
+##       &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;
+##  1      517            515         2
+##  2      533            529         4
+##  3      542            540         2
+##  4      544            545        -1
+##  5      554            600        -6
+##  6      554            558        -4
+##  7      555            600        -5
+##  8      557            600        -3
+##  9      557            600        -3
+## 10      558            600        -2
+## # ℹ 336,766 more rows</code></pre>
+<p>I would expect that if you add the dep_delay to the sched_dep_time,
+you would get the dep_time, which is correct.</p>
 </div>
 <div id="exercise-4-2" class="section level2">
 <h2>Exercise 4</h2>
-<pre class="r"><code>#</code></pre>
+<pre class="r"><code>flights12 &lt;- flights %&gt;%
+  mutate(delay_rank = min_rank(desc(arr_delay))) %&gt;%
+  arrange(delay_rank) %&gt;%
+  select(delay_rank, everything())
+flights12</code></pre>
+<pre><code>## # A tibble: 336,776 × 20
+##    delay_rank  year month   day dep_time sched_dep_time dep_delay arr_time
+##         &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;
+##  1          1  2013     1     9      641            900      1301     1242
+##  2          2  2013     6    15     1432           1935      1137     1607
+##  3          3  2013     1    10     1121           1635      1126     1239
+##  4          4  2013     9    20     1139           1845      1014     1457
+##  5          5  2013     7    22      845           1600      1005     1044
+##  6          6  2013     4    10     1100           1900       960     1342
+##  7          7  2013     3    17     2321            810       911      135
+##  8          8  2013     7    22     2257            759       898      121
+##  9          9  2013    12     5      756           1700       896     1058
+## 10         10  2013     5     3     1133           2055       878     1250
+## # ℹ 336,766 more rows
+## # ℹ 12 more variables: sched_arr_time &lt;int&gt;, arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;,
+## #   flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;,
+## #   distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+<p>These are the 10 most delayed flights. If there was a tie, the way
+min_rank handles it is that the tied values are given the same rank. The
+next, non-tied value is given the rank based off of its index in the
+column.</p>
 </div>
 </div>
 

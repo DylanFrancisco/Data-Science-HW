@@ -118,28 +118,63 @@ If you include the name of variable multiple times, it will only show the first 
 ##  Exercise 4
 ```{r}
 select(flights, contains("TIME"))
+select(flights, contains(toupper("time")))
 ```
 
-The results of using contains("TIME") did not really surprise me. It seems like the helper ignores case and displays anything with the word "time" int it, regardless of case. 
+The results of using contains("TIME") did not really surprise me. It seems like the helper ignores case and displays anything with the word "time" int it, regardless of case. I tried to use toupper() to only search for uppercase "TIME" but could not get it to work.
 
 # Chapter 3 (Pg. 58)
 
 ##  Exercise 1
 ```{r}
-#
+flights8 <- transmute(flights, dep_time,
+                      hour = dep_time%%100,
+                      minute = dep_time%%100,
+                      min_since_midnight = (hour*60) + minute)
+flights8
+
 ```
 
 ##  Exercise 2
 ```{r}
-#
+flights9 <- transmute(flights, air_time,
+                    arr_minus_dep = arr_time - dep_time)
+flights9
+
+flights10 <- transmute(flights, dep_hour = dep_time%%100,
+                       dep_minute = dep_time%%100,
+                       dep_min_after = (dep_hour*60) + dep_minute,
+                       arr_hour = arr_time%%100,
+                       arr_minute = arr_time%%100,
+                       arr_min_after = (arr_hour*60) + arr_minute,
+                       air_time, arr_minus_dep = arr_min_after - dep_min_after)
+
+
+                  
+flights10
 ```
+
+Before running the code, I would expect the numbers to be the same.
+
+After running, I noticed they are not, because arr_time and dep_time are measured in HHMM and air_time is in minutes.I thought a solution would be to convert the arrival and depature times to minutes and then do the calculation, but that did not end up working, however, I think that is still the solution.
 
 ##  Exercise 3
 ```{r}
-#
+flights11 <- transmute(flights, dep_time,
+                       sched_dep_time,
+                       dep_delay)
+flights11
 ```
+
+I would expect that if you add the dep_delay to the sched_dep_time, you would get the dep_time, which is correct.
 
 ##  Exercise 4
 ```{r}
-#
+flights12 <- flights %>%
+  mutate(delay_rank = min_rank(desc(arr_delay))) %>%
+  arrange(delay_rank) %>%
+  select(delay_rank, everything())
+flights12
 ```
+
+These are the 10 most delayed flights. If there was a tie, the way min_rank handles it is that the tied values are given the same rank. The next, non-tied value is given the rank based off of its index in the column. 
