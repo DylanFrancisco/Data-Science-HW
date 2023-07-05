@@ -276,7 +276,7 @@ ggplot(Professors, aes(x = yrs, y = salary)) +
   ggtitle("Relationship of Average Years Employed and Average Salary of Professors")
 ```
 
-Answer *(2 Points)*: (According to the graph, we can see that there is a slight negative relationship between Average Years Employed and Average Salary of Professors. However, upon further examination we can see there are a few departments where the professors have an Average Years Employed around 15-20 that make an average salary of above $300,000. These are the highest values among the data and they somewhat skew the linear model. When we look at the Average Years Employed that is > 27.5, the values are in line with the other departments. Even so, the data is spread out well, making the linear model somewhat weak. Without those outliers, we may assume there is no correlation between the data.)
+Answer *(2 Points)*: (According to the graph, we can see that there is a slight negative relationship between Average Years Employed and Average Salary of Professors. However, upon further examination we can see there are a few departments where the professors have an Average Years Employed around 15-20 that make an average salary of above $300,000. These are the highest values among the data and they somewhat skew the linear model. When we look at the Average Years Employed that is > 27.5, the values are in line with the other departments. Even so, the data is spread out well, making the linear model somewhat weak. Without those outliers, we could consider that there is no correlation between the data.)
 
 ### Q12 *(6 Points)*
 
@@ -287,16 +287,19 @@ Then, in complete sentences, I want you to state what departments you chose and 
 
 Code and Figure: *(4 Points)*:
 ```{r}
+length(unique(dept_cat_summary$Department))
+
 SelectedDepartments = c("Computer Science", "Chemistry", "History")
 
 SelectedDepData <- dept_cat_summary %>%
-  filter(Department %in% SelectedDepartments, Category == "Professor")
+  filter(Department %in% SelectedDepartments)
 
 
 ggplot(SelectedDepData, aes(x = yrs, y = salary)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~ Department, nrow = 1) 
+  facet_wrap(~ Department, nrow = 1) +
+  labs(x = "Average Years Employeed (By Cateogry)", y = "Average Salary of Employees (By Category)") 
 ```
 
-Answer *(2 Points)*: (Place Answer Here in Complete Sentences)
+Answer *(2 Points)*: (For the three departments I decided to choose Chemistry, Computer Science, and History. I wanted to get a range of departments in different areas that also vary in size. For my graphs, they all had a positive linear model but most of the data lies scattered in the 0-20 years employed range so the linear model is pretty weak. Each graphs highest earning category had an average years of around 25, which helped make the linear model positive. History had the highest slope of the three departments, potentially because there is less categories in that group.)
