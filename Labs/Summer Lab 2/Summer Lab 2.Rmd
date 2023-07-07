@@ -125,7 +125,7 @@ These distributions look the same in terms of the overall shape. For example, th
 Use `group_by()` along with summarize to report the mean `wage`, standard error of `wage`, and 95% confidence interval for the unknown population mean hourly wage for the various levels of `sex`. The standard error is equal to the standard deviation divided by the square root of the sample size. The 95% confidence interval is approximated by obtaining the lower and upper bound of an interval within 2 standard errors of the sample mean. Based on the confidence limits, do we have statistical evidence to say that the average hourly wage for men was different than the average hourly wage for women in 1987? yes (yes/no). 
 
 
-```{r,eval=FALSE}
+```{r,eval=T}
 wage %>% 
   group_by(sex) %>%
   summarize(n=n(),mean= mean(wage),se= sd(wage)/sqrt(n()),
@@ -197,7 +197,7 @@ The generally darker plot is the female chart. This implies that females who fin
 
 Question: Specifically for the scenario where a worker has 5 years of experience and 11 years of schooling, what does the extreme contrast between female and male cells imply for this figure? Write your answer in complete sentences below:
 
-In this scenario, the implication is that a female worker with 5 years of experience and 11 years of schooling will tend to make an hourly wage similiar to other 
+In this scenario, the implication is that a female worker with 5 years of experience and 11 years of schooling will tend to make an hourly wage similar to other.
 
 
 # Lab 2b: Tidy Data
@@ -271,9 +271,9 @@ The subsetted table contains scores and percentiles for two completely different
 
 Create a new tibble called `untidy2.school` that fixes this problem without dropping the original variables `school` or `student`. Read the documentation for `unite()` either by searching on google or using `?unite` to prevent the loss of original variables in the creation of a new variable. 
 
-```{r,eval=F}
+```{r,eval=T}
 untidy2.school = untidy.school %>%
-                    unite(COMPLETE)
+                    unite(CID, school, student, sep = ".", remove = FALSE)
 
 glimpse(untidy2.school) #Do Not Change Lines with the glimpse Function
 ```
@@ -284,10 +284,10 @@ glimpse(untidy2.school) #Do Not Change Lines with the glimpse Function
 
 The variables `value2017` and `value2018` contain the scores and percentiles for two different years. In a new tibble called `untidy3.school`, based on `untidy2.school`, we want to create a new variable called `Year` and a new variable called `Value` that display the year and the result from that year, respectively. The variable `Year` should be a numeric vector containing either *2017* or *2018*. The most efficient way to modify the data in this manner is to start by renaming `value2017` and `value2018` to nonsynctactic names `2017` and `2018`. Remember that you need to surround nonsyncactic names with backticks to achieve this result. 
 
-```{r,eval=F}
+```{r,eval=T}
 untidy3.school = untidy2.school %>%
-                    rename(NEWVAR=OLDVAR,NEWVAR=OLDVAR) %>%
-                    gather(`2017`:`2018`,COMPLETE)
+                    rename(`2017`= value2017,`2018`= value2018) %>%
+                    gather(`2017`:`2018`, key = "Year", value = "Value", convert=T)
 glimpse(untidy3.school)
 ```
 
@@ -297,9 +297,9 @@ glimpse(untidy3.school)
 
 The variable `type` in `untidy3.school` indicates that two completely different variables are contained in the recently created variable called `Value`. Both the scores and percentiles of students are contained in `Value`. Using the function `spread()` we can create two new variables, `Score` and `Percentile`, that display the information contained in `Value` in separate columns. Using `untidy3.school`, create a new tibble called `tidy.school` that accomplishes these tasks.
 
-```{r,eval=F}
+```{r,eval=T}
 tidy.school = untidy3.school %>%
-                    spread(COMPLETE) 
+                    spread(key = "type", value = "Value") 
 glimpse(tidy.school)
 ```
 
@@ -307,7 +307,7 @@ glimpse(tidy.school)
 
 The original data contains explicitly missing and implicitly missing values. Instances of both can be visibly seen in the first ten observations. Below is a table showing the first 10 observations in the cleaned dataset we called `tidy.school`. To appropriately, view this we have to sort our observations by `school` and `student` as seen in the original dataset `untidy.school`.  Knit the document to see the HTML table below.
 
-```{r,echo=F,results="asis",eval=F}
+```{r,echo=F,results="asis",eval=T}
 tab.tidy.school = tidy.school %>%
                   arrange(school,student) %>%
                   head(10) %>%
@@ -330,14 +330,14 @@ Based on the table above, you can see that student *4* from school *1* is clearl
 
 Use the `complete()` function to convert all implicitly missing to explicitly missing. Create a new table called `tidy2.school` that reports missing values as `NA` for all combinations of school, student, and year.
 
-```{r,eval=F}
+```{r,eval=T}
 tidy2.school=tidy.school %>%
-  complete(VARIABLES)
+  complete(school, student, Year)
 ```
 
 The first 10 rows of `tidy2.school` are displayed below.
 
-```{r,results="asis",eval=F}
+```{r,results="asis",eval=T}
 tab.tidy2.school = tidy2.school %>%
   head(10) %>%
   xtable(digits=0,align="ccccccc")
@@ -356,14 +356,17 @@ print(tab.tidy2.school,type="html",include.rownames=F,
 
 If you inspect the first 10 rows of `tidy2.school`, you should see that the variable `CID` is missing for student *4* from school *1* even though we know that this students unique district ID should be *"1.4"*. Using the pipe `%>%`, combine all previous statements in an order where this will not occur. Create a tibble named `final.tidy.school` using a chain of commands that begins with calling the original tibble `untidy.school`
 
-```{r,eval=F}
+```{r,eval=T}
 final.tidy.school = untidy.school %>%
-                      MORE %>%
-                      MORE %>%
-                      ...
+                    rename(`2017`= value2017,`2018`= value2018) %>%
+                    gather(`2017`:`2018`, key = "Year", value = "Value", convert=T) %>%
+                    spread(key = "type", value = "Value") %>% 
+                    complete(school, student, Year) %>% 
+                    unite(CID, school, student, sep = ".", remove = FALSE)
+                    
 
 glimpse(final.tidy.school)
-```
+``` 
 
 ## Part 5: Summarizing Figures
 
@@ -371,7 +374,7 @@ glimpse(final.tidy.school)
 
 The figure below uses boxplots to show the distribution of scores in the 20 schools for the years 2017 and 2018. 
 
-```{r,eval=F}
+```{r,eval=T}
 ggplot(final.tidy.school) +
   geom_boxplot(aes(x=as.factor(Year),y=Score,fill=as.factor(school))) + 
   guides(fill=F)+
@@ -380,11 +383,13 @@ ggplot(final.tidy.school) +
 
 Question: If you were the district superintendent, how would you distribute the King's ransom to these schools? In other words, how should Lebron James distribute the money to the schools. Write your answer in complete sentences below:
 
+If I were the superintendent, I would want to award the money across all schools. Ideally, I would calculate to see which schools, on average, improved the most from 2017-2018. Those would be the primary choices to send more money to. However, I would like to have more data on the previous years of funding to those schools. If a certain school has consistently budget, it would make sense that test scores could improve the most in those schools. If that were the case, I may want to provide more funding to schools that do not normally receive as much funding.
+
 ### 5.2: Follow-up question about inspecting the improvement (2 Points)
 
 Using different colors for each student, the next two pictures show the change in test scores and percentiles for all students (without missing values) sampled from the district. Both of these pictures are necessary in understanding the improvement in mathematical knowledge on the student level. As you can see, they are very different from each other. Hypothesize an educational strategy the district might have taken that would have caused this phenomenon to occur.
 
-```{r,eval=F}
+```{r,eval=T}
 ggplot(final.tidy.school) + 
   geom_line(aes(x=Year,y=Score,color=as.factor(CID))) +
   guides(color=F) +
@@ -400,6 +405,8 @@ ggplot(final.tidy.school) +
 
 Question: Do you believe the students actually improved in their math knowledge? Why or why not? The schools knew that they were going to get money based off the improvement of the math scores. What do we learn about the grades of the students when compared to each other. Think about this and write your answer in a well-written paragraph below:
 
+
+In my opinion, I think there is basis to say that the students did improve their math knowledge. When looking at the graph of the scores from 2017-2018, it is clear that almost all students improved on their scores from the year before. The percentile graph can be explained as students who had no to moderate improvement in test scores received a large difference in percentile drop because there were so many other students who improved on the second test, skewing the data for the percentiles up. Even though the student's had to spend less time in other subjects and most likely lost out on knowledge there, it does seem to have improved their math knowledge.
 
 
 
