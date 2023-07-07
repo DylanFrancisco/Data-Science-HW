@@ -1,0 +1,195 @@
+---
+title: "Homework 1"
+author: "DYLAN FRANCISCO"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:** 1-5 (Pgs. 6-7); 1-2, 5 (Pg. 12); 1-5 (Pgs. 20-21); Open Response
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+# Chapter 1 (Pgs. 6-7)
+
+##  Exercise 1
+```{r}
+ggplot(data=mpg)
+```
+
+I see absolutely nothing. There is just a blank space for a graph. Why am I even doing this nonsense?
+
+## Exercise 2
+```{r}
+dim(mpg)
+nrow(mpg)
+ncol(mpg)
+```
+There are 234 rows and 11 columns in the dataset **mpg**.
+
+##  Exercise 3
+```{r, eval=FALSE}
+?mpg
+```
+
+```{r}
+unique(mpg$drv)
+```
+
+
+The variable **drg** is a factor variable that takes the following values:
+
+- "f" = front-wheel drive
+- "r" = rear-wheel drive
+- "4" = 4-wheel drive
+
+##  Excercise 4
+```{r}
+ggplot(data=mpg,aes(x=hwy,y=cyl)) +
+  geom_point() + 
+  xlab("Highway Miles Per Gallon") +
+  ylab("Number of Cylinders")
+```
+
+
+##  Excercise 5
+```{r}
+ggplot(data=mpg,aes(x=class,y=drv)) + 
+  geom_point() + 
+  xlab("Type of Car") +
+  ylab("Type of Drive")
+```
+
+Scatter plots are not meant to visualize the relationship between two categorical/qualitative variables. 
+
+# Chapter 1 (Pg. 12)
+
+##  Exercise 1
+```{r}
+ggplot(data = mpg) +
+ geom_point(
+ mapping = aes(x = displ, y = hwy, color = "blue")
+ )
+```
+
+
+The reason the points are not blue is because the color was set in the aes function, when it should be set in the geom function
+
+##  Exercise 2
+```{r}
+?mpg
+```
+
+
+The variables cty, hwy, displ, and cyl could be considered continuous while the rest of the variables are categorical. When typing ?mpg, the information comes up in the help section of Rstudio.
+
+##  Exercise 5
+```{r}
+sizes <- expand.grid(size = (0:3) * 2, stroke = (0:3) * 2)
+ggplot(sizes, aes(size, stroke, size = size, stroke = stroke)) + 
+  geom_abline(slope = -1, intercept = 6, colour = "white", linewidth = 6) + 
+  geom_point(shape = 21, fill = "red") +
+  scale_size_identity()
+```
+
+
+Shapes 21-24 all have a stroke property built in. The size of the stroke is an outline around the shape.
+
+
+# Chapter 1 (Pgs. 20-21)
+
+##  Exercise 1
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+The best geom to plot a line graph would be geom_smooth.
+
+##  Exercise 2
+```{r}
+ggplot(
+ data = mpg,
+ mapping = aes(x = displ, y = hwy, color = drv)
+) +
+ geom_point() +
+ geom_smooth(se = FALSE)
+```
+
+
+Before running this code, I would imagine that is going to make a graph similar to the one above the exercises in the book, with both plots on one graph with the same style.
+
+After running the code: I noticed that each set of scatter points had an average line and the data was not based on the class of car but the drive train.
+
+
+##  Exercise 3
+```{r}
+ggplot(data = mpg) +
+ geom_smooth(
+ mapping = aes(x = displ, y = hwy, color = drv),
+ show.legend = FALSE
+ )
+
+```
+
+show.legend = FALSE will remove the legend for the x axis on the plot. Since there were multiple graphs earlier, that is why you used it when coding, as not to confuse someone with too much information.
+
+##  Exercise 4
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy), se = FALSE) 
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy)) 
+  
+```
+
+the se argument is what allows for the standard error around the smooth line. Without the se argument, the shaded standard error part of the graph goes away.
+
+##  Exercise 5
+
+I don't know if they will look different. Let me check.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+
+They do not look different. I am incredibly surprised.
+
+# Open Response
+
+For this exercise, use the **diamonds** dataset in the tidyverse. Use `?diamonds` to get more information about the dataset.
+
+## Step 1: Select 1 numeric variable and 2 categorical variables. Create a graphic using `geom_boxplot()` and `facet_wrap` to illustrate the empirical distributions of the sample.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = cut, y = price)) +
+  facet_wrap(~ color)
+```
+
+
+
+## Step 2: Choose 2 numeric variables and 2 categorical variables and creatively illustrate the relationship between all the variables. 
+
+```{r}
+ggplot(data = diamonds) +
+  geom_point( mapping = aes(x = carat, y = price, color = cut, size = color))
+```
+
+Not the most clear way of viewing the data, but with more experience will come better ways of showing lots of data at once with clear understanding, but this is a good start.

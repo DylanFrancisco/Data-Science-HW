@@ -1,0 +1,140 @@
+---
+title: "Homework 3"
+author: "Dylan Francisco"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pgs. 90-91); 1 (Pg. 93); 2,4 (Pg. 99); 1,2 (Pg. 101); 2,3,5 (Pg. 104)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(lvplot)
+library(hexbin)
+```
+
+# Chapter 5 (Pgs. 90-91)
+
+##  Exercise 1
+```{r}
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x = x), binwidth = 0.1)
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x = y), binwidth = 0.1)
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x = z), binwidth = 0.1)
+
+```
+
+It seems like the distribution for the x, y, and z are somewhat similar. The Z axis is the only one with an abnormal high count (>3500), but all dimensions are less than 10 mm in size. I would choose x as the length, y as the width, and z as the depth.
+
+##  Exercise 3
+```{r}
+diamonds.carat99 = filter(diamonds, carat == 0.99)
+diamonds.carat1 = filter(diamonds, carat == 1)
+count(diamonds.carat99)
+count(diamonds.carat1)
+```
+Thee are 23 diamonds with .99 carat and 1558 diamonds with 1 carat. Since there are so few diamond with .99 carat, a potential possibility is that there was errors when shaping the diamonds, causing .01 extra carat shaved off.
+
+
+# Chapter 5 (Pg. 93)
+
+##  Exercise 1
+```{r}
+flights <-  nycflights13::flights
+ggplot(flights) +
+  geom_histogram(mapping = aes(x = dep_time), binwidth = 1)
+ggplot(flights) +
+  geom_bar(mapping = aes(x = dep_time))
+```
+
+It seems like both geom_histogram and geom_bar take away the na values when they are plotted. However, geom_bar seems to take more values away because it does not use bins, so those areas are not shaded at all.
+
+# Chapter 5 (Pg. 99)
+
+##  Exercise 2
+```{r}
+ggplot(
+ data = diamonds,
+ mapping = aes(x = price, y = ..density..)
+ ) +
+ geom_freqpoly(mapping = aes(color = color), binwidth = 500)
+
+ggplot(data = diamonds, mapping = aes(x = color, y = price)) +
+ geom_boxplot()
+
+ggplot(data = diamonds, mapping = aes(x = cut, y = color), n=price) +
+  geom_count()
+        
+```
+
+From my analysis, it would seem that the color of the diamond is the most important when predicting the price of a diamond. this can help explain lower qaulity cuts being expensive, because they have a good color.
+
+##  Exercise 4
+```{r}
+ggplot(data = diamonds, mapping  = aes(x = cut, y = price)) +
+  geom_lv()
+```
+With this data, I learned that most cuts of diamond are relatively similar when it comes to determining the price. Most diamonds are at or below $10,000, and besides the Fair cut, the other cuts have similar prices compared to their cut.
+
+
+# Chapter 5 (Pg. 101)
+
+##  Exercise 1
+```{r}
+diamonds %>%
+ count(color, cut) %>%
+ ggplot(mapping = aes(x = cut, y = color)
+        )+
+ geom_tile(mapping = aes(fill = n))
+```
+
+I feel like putting the cut as the x-axis makes the distribution easier to understand and more clear overall. It shows that when getting to the ideal cut, there are more of the higher-tier colors.
+
+##  Exercise 2
+```{r}
+delay <- flights %>% 
+  group_by(dest, month) %>% 
+  summarize(average_delay = mean(dep_delay))
+
+ggplot(data = delay, mapping  = aes(x = month, y = dest, fill = average_delay)) +
+  geom_tile()
+```
+
+This graph is very difficult to read. The main issue is that there are many different destinations for all of the flights in the data set. Because of this, there are also lots of negative space that is not used because there were no flights to that destination that month. It could be improved by focusing on destinations within a single state, not each airport.
+
+
+# Chapter 5 (Pg. 104)
+
+##  Exercise 2
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price, y = carat)) +
+  geom_boxplot(mapping = aes(group = cut_number(price, 20)))
+```
+
+It appears that as diamonds get larger, the variance of the price does as well. This did surprise me, but I did expect larger diamonds to fetch a higher price, which they generally do.
+
+
+##  Exercise 3
+
+I used the same code from Exercise 2 to help me answer this question.
+
+It appears that as diamonds get larger, the variance of the price does as well. This did surprise me, but I did expect larger diamonds to fetch a higher price, which they generally do.
+
+##  Exercise 5
+```{r}
+ggplot(data = diamonds) +
+ geom_point(mapping = aes(x = x, y = y)) +
+ coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
+```
+
+A scatterplot is better than a binned plot in this display because it gives you a more realistic view of the outliers in your data. It helps when comparing the x and y values together instead of doing it separately. 
