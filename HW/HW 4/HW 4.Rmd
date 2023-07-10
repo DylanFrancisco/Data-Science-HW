@@ -184,5 +184,5 @@ who.tidy.group <- who.tidy %>%
 who.tidy.group
 
 ggplot(who.tidy.group) +
-  geom_col(mapping = aes(x = country, y = total_cases, color = sex))
+  geom_line(mapping = aes(x = year, y = total_cases, color = sex))
 ```
