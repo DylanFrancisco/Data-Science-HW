@@ -1,0 +1,156 @@
+---
+title: "Homework 4"
+author: "Dylan Francisco"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  2,3 (Pg. 151); 2,4 (Pg. 156); 1,2 (Pgs. 160-161); 2 (Pg. 163); 2,3,4 (Pg. 168)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 9 (Pg. 151)
+
+##  Exercise 2
+```{r}
+#
+```
+
+##  Exercise 3
+```{r}
+#
+```
+
+# Chapter 9 (Pg. 156)
+
+##  Exercise 2
+```{r}
+table4a %>%
+ gather(`1999`, `2000`, key = "year", value = "cases")
+```
+The reason the code given in the example failed was becasuse 1999 and 2000 were not put in backticks.
+
+
+##  Exercise 4
+```{r}
+preg <- tribble(
+ ~pregnant, ~male, ~female,
+ "yes", NA, 10,
+ "no", 20, 12
+)
+
+
+gather(preg, key = "gender", value = "count", -pregnant)
+
+```
+
+The variables are pregnant, gender, and count. By using gather, it makes the data set much easier to understand.
+
+# Chapter 9 (Pgs. 160-161)
+
+##  Exercise 1
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+ separate(x, c("one", "two", "three"),fill = "left")
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+ separate(x, c("one", "two", "three"), sep = ",", extra = "merge")
+```
+
+Fill shifted where the NA would be placed. By using "left", it filled the missing value on the left.
+
+Extra allowed me to control what happened when there were too many pieces from my separator. 
+
+##  Exercise 2
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+ separate(x, c("one", "two", "three"), remove =FALSE)
+
+```
+
+Remove allows you to decide to keep or remove the input column in your final dataset. You may want to set it to false if you need to keep original data. If you needed to make a special variable that is a unique identifier for a student by using their school number and student number, you may still want to keep those original variables.
+# Chapter 9 (Pg. 163)
+
+##  Exercise 2
+```{r}
+tidy_pets <- tibble::tribble(
+  ~rank, ~pet_type, ~breed,
+  1L,        NA,    "Boston Terrier",
+  2L,        NA,    "Retrievers (Labrador)",
+  3L,        NA,    "Retrievers (Golden)",
+  4L,        NA,    "French Bulldogs",
+  5L,        NA,    "Bulldogs",
+  6L,     "Dog",    "Beagles",
+  1L,        NA,    "Persian",
+  2L,        NA,    "Maine Coon",
+  3L,        NA,    "Ragdoll",
+  4L,        NA,    "Exotic",
+  5L,        NA,    "Siamese",
+  6L,     "Cat",    "American Short"
+)
+
+tidy_pets
+
+tidy_pets %>%
+  fill(pet_type, .direction = "up")
+```
+
+The direction argument to fill is the column that you want to have missing values filled in. In this example from RStudio Help shows how the fill function replaced the missing values using fill to apply the sole present value to the missing values. The other argument you can use is .direction, that allows you to decide which direction you want the values to be filled in.
+
+# Chapter 9 (Pg. 168)
+
+##  Exercise 2
+```{r}
+who.tidy <- who %>%
+  gather(key = "key", value = "cases", new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  mutate(key = str_replace(key, "newrel", "new_rel")) %>%
+  separate(key, c("new", "type", "sexage"), sep = "_") %>%
+  select(-new, -iso2, -iso3) %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+
+
+who.tidy.nomutate <- who %>%
+  gather(key = "key", value = "cases", new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  separate(key, c("new", "type", "sexage"), sep = "_") %>%
+  select(-new, -iso2, -iso3) %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+who.tidy
+who.tidy.nomutate
+
+```
+
+When you do not include the mutate step, the code will omit data because the names were not changed correctly, meaning the separate function could not work.
+
+##  Exercise 3
+```{r}
+who
+
+
+who.tidy
+
+```
+
+By showing both datasets, it becomes clear that iso2 and iso3 are redundant and could be dropped. The country is the easiest of the 3 naming systems to understand and keeping the others has no barring on the actual data.
+
+##  Exercise 4
+```{r}
+who.tidy.group <- who.tidy %>% 
+  group_by(country, year, sex) %>% 
+  summarize(total_cases = sum(cases)) %>% 
+  ungroup()
+
+who.tidy.group
+
+ggplot(who.tidy.group) +
+  geom_col(mapping = aes(x = country, y = total_cases, color = sex))
+```
