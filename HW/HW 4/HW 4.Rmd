@@ -23,13 +23,45 @@ library(tidyverse)
 
 ##  Exercise 2
 ```{r}
-#
+table2.cases <- table2 %>% 
+  filter(type == "cases") %>% 
+  select(country, year, cases_count = count)
+
+table2.pop <- table2 %>% 
+  filter(type == "population") %>% 
+  select(country, year, population_count = count)
+
+table2.rates <- table2.cases %>%
+  inner_join(table2.pop, by = c("country", "year")) %>%
+  mutate(rate = (table2.cases$cases_count / table2.pop$population_count) * 10000)
+
+table2 <- table2 %>%
+  filter(type == "cases") %>%
+  select(-count) %>%
+  left_join(table2.rates, by = c("country", "year")) %>% select(country, rate, everything())
+
+table2
+
+
+table4 <- inner_join(table4a, table4b, by = "country") %>% 
+  mutate(rate_1999 = `1999.x` / `1999.y` * 10000) %>% 
+  mutate(rate_2000 = `2000.x` / `2000.y` * 10000) %>% 
+  select(country, rate_1999, rate_2000, everything())
+ 
+table4
+  
 ```
+I found table4a and table4b the easier ones to work with. Since I did not need to group, I was able to do an easy join with minimal changes where table2 took more work and thinking.
+
 
 ##  Exercise 3
 ```{r}
-#
+ggplot(table2, aes(year, cases_count)) +
+ geom_line(aes(group = country), color = "grey50") +
+ geom_point(aes(color = country))
 ```
+
+To use table2, I had to change the data in ggplot to table2 and also change the cases variable name because I changed it during my work.
 
 # Chapter 9 (Pg. 156)
 
