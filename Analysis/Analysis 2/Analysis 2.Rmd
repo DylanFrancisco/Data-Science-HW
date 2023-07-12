@@ -1,6 +1,6 @@
 ---
 title: "Analysis 2: Connecting Country Level Data"
-author: "FIRSTNAME LASTNAME"
+author: "Dylan Francisco"
 date:  "`r format(Sys.time(), '%B %d, %Y')`"
 output: html_document
 ---
@@ -37,11 +37,14 @@ Information at [Worldometer GDP](https://www.worldometers.info/gdp/gdp-by-countr
 
 Webscrape the data from https://www.worldometers.info/gdp/gdp-by-country/ into a data frame in R called `GDP`. If done correctly, you should have a new object in R called `GDP` which is a data frame with 190 observations and 8 variables.
 
-```{r,eval=FALSE}
+```{r,eval=TRUE}
 URL.GDP="https://www.worldometers.info/gdp/gdp-by-country/" #DO NOT CHANGE
 
-GDP = COMPLETE
+GDP = URL.GDP %>% 
+  read_html() %>% 
+  html_table(fill=TRUE) 
 
+GDP <- as.data.frame(GDP)
 head(GDP) #DO NOT CHANGE
 ```
 
@@ -49,9 +52,8 @@ head(GDP) #DO NOT CHANGE
 
 Remove the first and fourth variables from `GDP` and create a new data frame named `GDP2` based on this change.
 
-```{r,eval=FALSE}
-GDP2 = COMPLETE
-
+```{r,evall=TRUE}
+GDP2 <- GDP[, -c(1, 4)]
 head(GDP2) #DO NOT CHANGE
 ```
 
@@ -59,8 +61,16 @@ head(GDP2) #DO NOT CHANGE
 
 Create a new data frame named `GDP3` based off `GDP2` where the variables `GDP (nominal, 2017)`,`GDP  growth`, `Population (2017)`, `GDP  per capita`, and `Share of World GDP` to `GDP`, `Growth`, `Population`, `PerCapita`, and `Share`, respectively. Be careful!! In the original variable names, there are two spaces between "GDP" and "growth" in `GDP growth` and two spaces between "GDP" and "per capita" in GDP  per capita`.
 
-```{r,eval=FALSE}
-GDP3 = COMPLETE
+```{r,eval=TRUE}
+GDP3 <- GDP2 %>%
+  select(
+    Country,
+    GDP = GDP..nominal..2017.,
+    Growth = GDP..growth,
+    Population = Population..2017.,
+    PerCapita = GDP..per.capita,
+    Share = Share.of.World.GDP
+  )
 
 names(GDP3) #DO NOT CHANGE
 ```
@@ -70,9 +80,14 @@ names(GDP3) #DO NOT CHANGE
 
 Next, we must clean the data so there are no dollar signs or percent signs in the data using `str_replace()`. The dollar sign is a special character and must be referenced as `\\$`. Create a new data frame named `GDP4` where the dollar signs and percent signs are removed from all necessary variables.
 
-```{r, eval=FALSE}
-COMPLETE
-
+```{r, eval=TRUE}
+GDP4 <- GDP3 %>%
+  mutate(
+    GDP = str_replace(GDP, "\\$", ""),
+    Growth = str_replace(Growth, "%", ""),
+    PerCapita = str_replace(PerCapita, "\\$", ""),
+    Share = str_replace(Share, "%", "")
+  )
 str(GDP4) #DO NOT CHANGE
 ```
 
@@ -80,8 +95,15 @@ str(GDP4) #DO NOT CHANGE
 
 Next, create a new data frame named `GDP5` where all commas are removed from potentially numeric variables using `str_replace_all()`.
 
-```{r, eval=FALSE}
-COMPLETE
+```{r, eval=TRUE}
+GDP5 <- GDP4 %>%
+  mutate(
+    GDP = str_replace_all(GDP, ",", ""),
+    Growth = str_replace_all(Growth, ",", ""),
+    Population = str_replace_all(Population, ",", ""),
+    PerCapita = str_replace_all(PerCapita, ",", ""),
+    Share = str_replace_all(Share, ",", "")
+  )
 
 str(GDP5) #DO NOT CHANGE
 ```
@@ -90,8 +112,15 @@ str(GDP5) #DO NOT CHANGE
 
 Create a new data frame called `GDP6` where all the variables except `Country` are changed to numeric variables.
 
-```{r, eval=FALSE}
-COMPLETE
+```{r, eval=TRUE}
+GDP6 <- GDP5 %>% 
+  mutate(
+    GDP = as.numeric(GDP),
+    Growth = as.numeric(Growth),
+    Population = as.numeric(Population),
+    PerCapita = as.numeric(PerCapita),
+    Share = as.numeric(Share)
+  )
 
 str(GDP6) #DO NOT CHANGE
 ```
@@ -101,8 +130,12 @@ str(GDP6) #DO NOT CHANGE
 
 Rewrite over the original `GDP` variable with a new variable called `GDP` that is in **trillions of dollars** rather than in actual dollars. Rewrite over the original `Population` variable with a new variable of the same name that is in **millions of people** rather than in actual people. You are scaling the original variables to change the units without changing the variable names. Save your changes in a new data frame called `GDP7`.
 
-```{r, eval=FALSE}
-COMPLETE
+```{r, eval=TRUE}
+GDP7 <- GDP6 %>% 
+  mutate(
+    GDP = GDP / 1e12,
+    Population = Population / 1e6
+  )
 
 str(GDP7)  #DO NOT CHANGE
 ```
@@ -117,10 +150,15 @@ Check out the Worldometer page (https://www.worldometers.info/co2-emissions/co2-
 
 Webscrape the data from (https://en.wikipedia.org/wiki/Education_Index) into a data frame in R called `EDU` and only keep the 2 variables with each country's name along with its education index from 2019. Also, rename the variable named "2019" to "ED.Index".
 
-```{r,eval=FALSE}
+```{r,eval=TRUE}
 URL.EDU="https://en.wikipedia.org/wiki/Education_Index" #DO NOT CHANGE
 
-EDU = COMPLETE
+EDU = URL.EDU %>%
+  read_html() %>%
+  html_table(fill = TRUE) %>%
+  `[[`(1) %>%
+  select(Country, `2019`) %>% 
+  rename(ED.Index = `2019`)
 
 head(EDU) #DO NOT CHANGE
 ```
@@ -132,10 +170,17 @@ Webscrape the data from (https://www.worldometers.info/co2-emissions/co2-emissio
 
 Each time you run this code chunk, you may have to run the first line of this code every time to get it to work. You may get some error related to "invalid connection" or "open connection".  You can also try knitting the document every time you make any change to this code chunk to see the output in the HTML file.
 
-```{r,eval=FALSE}
+```{r,eval=TRUE}
 URL.CO2=url("https://www.worldometers.info/co2-emissions/co2-emissions-by-country/") #DO NOT CHANGE
 
-CO2 = COMPLETE
+CO2 <- URL.CO2 %>%
+  read_html() %>%
+  html_table(fill = TRUE) %>%
+  `[[`(1) %>%
+  select(Country, `CO2 Emissions (tons, 2016)`) %>%
+  rename(CO2 = `CO2 Emissions (tons, 2016)`) %>% 
+  mutate(CO2 = str_replace_all(CO2, ",", "")) %>% 
+  mutate(CO2 = as.numeric(CO2))
 
 str(CO2) #DO NOT CHANGE
 ```
@@ -148,8 +193,9 @@ Now, we are going to merge the datasets for maximum gains. Make sure you careful
 
 The dataset named `GDP7` is our primary dataset. Create a new dataset called `GDP7.EDU` that brings the education data from `EDU` into the dataset `GDP7`. Use a left join only.
 
-```{r,eval=FALSE}
-COMPLETE
+```{r,eval=TRUE}
+GDP7.EDU <- left_join(GDP7, EDU, by = "Country")
+
 
 head(GDP7.EDU) #DO NOT CHANGE
 ```
@@ -160,41 +206,44 @@ head(GDP7.EDU) #DO NOT CHANGE
 How many countries in `GDP7.EDU` have missing values for Education Index? Show code that can be used to answer this question and place your answer in the appropriate space below in a complete sentence. Your code should return a number.
 
 Code *(1 Point)*:
-```{r,eval=FALSE}
-COMPLETE
+```{r,eval=TRUE}
+sum(is.na(GDP7.EDU$ED.Index))
 ```
 
-Answer *(2 Point)*: (Place your answer here in complete sentences.)
+Answer *(2 Point)*: (The number of countries with a missing Education Index is 24.)
 
 
 ### Q3 *(3 Points)*
 
 Closely inspect the original datasets and answer the following questions about `GDP7.EDU` in complete sentences. You can use the code chunk below if needed, but this is not required. If you don't reference the appropriate dataset or you are not specific in your answers, you will get 0 points.
 
-```{r,eval=FALSE}
-#
+```{r,eval=TRUE}
+GDP7
+EDU
+GDP7.EDU.sorted = arrange(GDP7.EDU, desc(is.na(ED.Index)))
+GDP7.EDU.sorted
 ```
 
 Why is there no education index for the Russia in the dataset `GDP7.EDU`?
 
-Answer *(1 Point)*: (Place your answer here in complete sentences.)
+Answer *(1 Point)*: (There is no education index for Russia because in the dataset EDU, the country "Russia" is inputed as "Russian Federation". Since in the GDP7 dataset the variable is called "Russia", it was not able to merge the information from EDU.)
 
 Why is there no education index for South Korea in the dataset `GDP7.EDU`?
 
-Answer *(1 Point)*: (Place your answer here in complete sentences.)
+Answer *(1 Point)*: (The reason that South Korea's Education Index is not in the GDP7.EDU dataset is because in the EDU dataset, South Korea is labeled as "Korea (Republic of)". Because of this, when the two datasets were merged, it kept the variable name "South Korea" from the GDP7 dataset and did not join the Education Index from the EDU dataset due to the name inconsistenty.)
 
 Why is there no education index for Tuvalu in the dataset `GDP7.EDU`?
 
-Answer *(1 Point)*: (Place your answer here in complete sentences.)
+Answer *(1 Point)*: (While the GDP7 dataset does include Tuvalu, the EDU dataset does not. This means that when the datasets merged, there was no information on Tuvalu in the EDU dataset to be taken from.)
 
 
 ### Q4 *(2 Points)*
 
 Suppose we want to see if countries with higher GDP tend to be countries with higher CO2 emissions. Merge the data from `GDP7` with the the data frame named `CO2` to create a new dataset named `GDP7.CO2` that only contains data for countries that are represented in both datasets. 
 
-```{r,eval=FALSE}
-COMPLETE
-
+```{r,eval=TRUE}
+GDP7.CO2 <- merge(GDP7, CO2, by = "Country", all = FALSE)
+ 
 head(GDP7.CO2) #DO NOT CHANGE
 ```
 
@@ -203,8 +252,9 @@ head(GDP7.CO2) #DO NOT CHANGE
 In the dataset `CO2`, there are 209 observations. In the dataset `GDP7`, there are 190 observations. Use a filtering join to create a dataset called `CO3` that shows only CO2 data for the countries in `CO2` that are not represented in `GDP7`. Then, answer the follow-up question in complete sentences.
 
 Code *(2 Points)*:
-```{r, eval=FALSE}
-COMPLETE
+```{r, eval=TRUE}
+CO3 <- anti_join(CO2, GDP7, by="Country")
+
 
 head(CO3) #DO NOT CHANGE
 ```
@@ -212,7 +262,7 @@ head(CO3) #DO NOT CHANGE
 If there are 209 countries in `CO2` and 190 countries in `GDP7`, why is the number of countries in `CO3` not simply $209-190=19$? Answer in complete sentences and fill free to use the code chunk below if needed.
 
 ```{r,eval=TRUE}
-#
+CO3
 ```
 
-Answer *(2 Points)*: (Place your answer here in complete sentences.)
+Answer *(2 Points)*: (The reason the answer is not as simple as just subtracting the size of GDP7 to CO2 is because of several reasons. While there are countries like North Korea that may have been purposefully hiding their GDP when this data was taken, which would be a standard reason to have a discrepancy. However there are countries listed in the CO2 dataset that do show up in GDP because they may be colonies or under the umbrella of a larger country. In this case, you could have multiple countries with their own CO2 emissions, but they all contribute to the GDP of a larger country. This would make more entries in CO3 since these countries GDP did not count towards themseleves.
