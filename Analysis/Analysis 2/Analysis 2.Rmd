@@ -155,8 +155,8 @@ URL.EDU="https://en.wikipedia.org/wiki/Education_Index" #DO NOT CHANGE
 
 EDU = URL.EDU %>%
   read_html() %>%
-  html_table(fill = TRUE) %>%
-  `[[`(1) %>%
+  html_table(fill = TRUE) 
+as
   select(Country, `2019`) %>% 
   rename(ED.Index = `2019`)
 

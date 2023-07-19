@@ -1,0 +1,114 @@
+---
+title: "Homework 5"
+author: "Dylan Francisco"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pg. 227); 2 (Pg. 232); 1,2 (Pg. 235); 
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(forcats)
+```
+
+# Chapter 12 (Pg. 227)
+
+##  Exercise 1
+```{r}
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar() 
+
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar() +
+  scale_x_discrete(guide = guide_axis(n.dodge=4))
+```
+
+The default barplot is hard to understand because the x variables are all numbers overlapping each other. This makes it impossible to see exactly what numbers the bars are representing. We could improve this by looking at my second plot. While this is not a perfect solution, it can be used and improved upon to see more of the variables.
+
+##  Exercise 3
+```{r}
+religions_denoms <- gss_cat %>% 
+  select(relig, denom) %>% 
+  filter(!denom == "Not applicable") %>% 
+  filter(!denom == "No denomination") %>% 
+  filter(!denom == "No answer") %>% 
+  filter(!denom == "Don't know") %>% 
+  arrange(desc(relig))
+
+religions_denoms1 <- gss_cat %>% 
+  select(relig, denom) %>% 
+  filter(!denom == "Not applicable") %>% 
+  filter(!denom == "No denomination") %>% 
+  filter(!denom == "No answer") %>% 
+  filter(!denom == "Don't know") %>% 
+  arrange((relig))
+
+
+religions_denoms
+religions_denoms1
+
+ggplot(gss_cat, mapping = aes(relig, denom)) +
+  geom_count() +
+  scale_x_discrete(guide = guide_axis(n.dodge=3))
+```
+
+I have shown code to provide a table and a graph that I think show that the denom category applies to the protestant religion. The table is filled only by protestants after the non-applicable answers are removed. This can be proved by arranging it by religion and moving to the end of the dataset, which still shows protestant. 
+
+The graph shows that protestants are the only religion which have a variety of denoms. Every other religion is shown to be an answer that is non-applicable.
+
+
+# Chapter 12 (Pg. 232)
+
+##  Exercise 2
+```{r}
+?gss_cat
+```
+
+When looking at the help documentation for gss_cat, we can determine that the variables marital, race, relig, and denom are arbitrary and the variables rincome, and partyid are principled
+
+# Chapter 12 (Pg. 235)
+
+##  Exercise 1
+```{r}
+gss_cat %>%
+ mutate(partyid = fct_recode(partyid,
+ "Republican" = "Strong republican",
+ "Republican" = "Not str republican",
+ "Independent" = "Ind,near rep",
+ "Independent" = "Ind,near dem",
+ "Democrat" = "Not str democrat",
+ "Democrat" = "Strong democrat",
+ "Other" = "No answer",
+ "Other" = "Don't know",
+ "Other" = "Other party"
+ )) %>%
+  group_by(partyid, year) %>% 
+  summarize(count = n()) %>% 
+  ggplot(aes(year, count, color = partyid)) +
+  geom_line()
+  
+
+```
+
+This plot shows that over time, each party has a spike in 2006, especially the independent party. However, between the democrat and republican party, there has not been any change in which has more affiliation throughout the years.
+
+
+##  Exercise 2
+```{r}
+gss_cat %>% 
+  mutate(rincome = fct_lump(rincome, n = 5)) %>% 
+  count(rincome, sort = TRUE) %>% 
+  print(n = Inf)
+```
+
+
+The code shown is an example of how we could collapse rincome into a small set of categories.
