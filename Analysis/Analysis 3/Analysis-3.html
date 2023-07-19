@@ -568,14 +568,14 @@ TEST.CLEAN.3=TEST.CLEAN.2   #DO NOT CHANGE
 TRAIN.CLEAN.3$Day = rep(c(&quot;Tuesday&quot;, &quot;Wednesday&quot;, &quot;Thursday&quot;, &quot;Friday&quot;, 
                           &quot;Saturday&quot;, &quot;Sunday&quot;, &quot;Monday&quot;), 
                         length.out = nrow(TRAIN.CLEAN.3))
-TEST.CLEAN.3$Day  = rep(c(&quot;Tuesday&quot;, &quot;Wednesday&quot;, &quot;Thursday&quot;, &quot;Friday&quot;, 
-                          &quot;Saturday&quot;, &quot;Sunday&quot;, &quot;Monday&quot;), 
+TEST.CLEAN.3$Day  = rep(c(&quot;Sunday&quot;, &quot;Monday&quot;, &quot;Tuesday&quot;, &quot;Wednesday&quot;, 
+                          &quot;Thursday&quot;, &quot;Friday&quot;, &quot;Saturday&quot;), 
                         length.out = nrow(TEST.CLEAN.3))
 
 unique(TRAIN.CLEAN.3$Day[c(1,1461)]) #DO NOT CHANGE</code></pre>
 <pre><code>## [1] &quot;Tuesday&quot;  &quot;Saturday&quot;</code></pre>
 <pre class="r"><code>unique(TEST.CLEAN.3$Day[c(1,114)]) #DO NOT CHANGE</code></pre>
-<pre><code>## [1] &quot;Tuesday&quot;   &quot;Wednesday&quot;</code></pre>
+<pre><code>## [1] &quot;Sunday&quot; &quot;Monday&quot;</code></pre>
 </div>
 <div id="q4-4-points" class="section level3">
 <h3>Q4 <em>(4 Points)</em></h3>

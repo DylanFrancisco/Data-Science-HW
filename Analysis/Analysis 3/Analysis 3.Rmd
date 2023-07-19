@@ -143,8 +143,8 @@ TEST.CLEAN.3=TEST.CLEAN.2   #DO NOT CHANGE
 TRAIN.CLEAN.3$Day = rep(c("Tuesday", "Wednesday", "Thursday", "Friday", 
                           "Saturday", "Sunday", "Monday"), 
                         length.out = nrow(TRAIN.CLEAN.3))
-TEST.CLEAN.3$Day  = rep(c("Tuesday", "Wednesday", "Thursday", "Friday", 
-                          "Saturday", "Sunday", "Monday"), 
+TEST.CLEAN.3$Day  = rep(c("Sunday", "Monday", "Tuesday", "Wednesday", 
+                          "Thursday", "Friday", "Saturday"), 
                         length.out = nrow(TEST.CLEAN.3))
 
 unique(TRAIN.CLEAN.3$Day[c(1,1461)]) #DO NOT CHANGE
