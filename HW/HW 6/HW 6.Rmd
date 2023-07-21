@@ -1,0 +1,169 @@
+---
+title: "Homework 6"
+author: "Dylan Francisco"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  4 (Pg. 302); 1 (Pgs. 316-317); 1 (Pgs. 328-329); 1, 2 (Pgs. 353-354)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(purrr)
+library(nycflights13)
+```
+
+# Chapter 16 (Pg. 302)
+
+##  Exercise 4
+
+### a)
+```{r}
+lastVal = function(x) {
+  return (x[[length(x)]])
+}
+lastVal(1:40)
+```
+
+### b)
+```{r}
+evenElements = function(x) {
+  return (x[seq(2, length(x), 2)])
+  
+}
+evenElements(1:40)
+```
+
+### c)
+```{r}
+removeLast = function(x) {
+  return (x[1:length(x) - 1])
+}
+removeLast(1:10)
+```
+
+### d)
+```{r}
+evens = function(x) {
+  return (x[!is.nan(x) & (x %% 2 ==0)])
+}
+evens(1:40)
+```
+
+# Chapter 17 (Pgs. 316-317)
+
+##  Exercise 1
+
+### a)
+```{r}
+meanColumns = vector("double", ncol(mtcars))
+names(meanColumns) = names(mtcars)
+
+for (i in names(mtcars)) {
+  meanColumns[[i]] = mean(mtcars[[i]])
+}
+meanColumns
+```
+
+### b)
+```{r}
+columnTypes = vector("list", ncol(flights))
+names(columnTypes) = names(flights)
+
+for (i in names(flights)){
+  columnTypes[[i]] = class(flights[[i]])
+}
+
+columnTypes
+```
+
+### c)
+```{r}
+uniqueVals = vector("double", ncol(iris))
+names(uniqueVals) = names(iris)
+
+for (i in names(iris)) {
+  uniqueVals[[i]] = length(unique(iris[[i]]))
+}
+
+uniqueVals
+```
+
+### d)
+```{r}
+n = 10
+nmean = c(-10, 0, 10, 100)
+rnormals = vector("list", length(nmean))
+
+for (i in seq_along(rnormals)) {
+  rnormals[[i]] = rnorm(n, mean = nmean[i])
+}
+
+rnormals
+```
+
+# Chapter 17 (Pgs. 328-329)
+
+##  Exercise 1
+
+### a)
+```{r}
+map_dbl(mtcars, mean)
+```
+
+### b)
+```{r}
+#
+map_chr(flights, typeof)
+```
+
+### c)
+```{r}
+map_int(iris, function(x) length(unique(x)))
+```
+
+### d)
+```{r}
+map(c(-10, 0, 10, 100), ~rnorm(n = 10, mean = .))
+```
+
+# Chapter 18 (Pgs. 353-354)
+
+##  Exercise 1
+```{r}
+sim1a <- tibble(
+ x = rep(1:10, each = 3),
+ y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+
+ggplot(sim1a, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+When running the ggplot function many times, I can see that the the slope and shape of the linear model does not really change, however, outliers do show up and the linear model can not account for them.
+
+##  Exercise 2
+```{r}
+measure_distance <- function(mod, data) {
+ diff <- data$y - (mod[1] + mod[2] * data$x)
+ sqrt(mean(diff^2))
+}
+
+better = optim(c(0,0), measure_distance, data = sim1a)
+ggplot(sim1a, aes(x = x, y = y)) +
+  geom_point() +
+  geom_abline(intercept = better$par[1], slope = better$par[2])
+
+```
+
+
+You can certainly make the argument that this is a better model of the data, even if it is hard to notice.
