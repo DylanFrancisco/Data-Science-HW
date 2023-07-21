@@ -244,19 +244,16 @@ lm3 = lm(geek_rating ~ log(owned) + vote.per.year + weight,data=train.bgg)
 Add predictions and residuals for all 3 models to the test set. Create a new data frame called `test.bgg2` and give all your predictions and residuals different names. Use the `str()` function to show these variables were created
 
 
-```{r,eval=F}
+```{r,eval=T}
 test.bgg2 <- test.bgg %>% 
 
+  add_predictions(lm1, var = "LM1Pred") %>% 
+  add_predictions(lm2, var = "LM2Pred") %>% 
+  add_predictions(lm3, var = "LM3Pred") %>% 
+  add_residuals(lm1, var = "LM1Res") %>%   
+  add_residuals(lm2, var = "LM2Res") %>%   
+  add_residuals(lm3, var = "LM3Res") 
 
-transmute("Model 1 Prediction" = predict(lm1, newdata = test.bgg)) %>% 
-mutate(test.bgg2$residual_lm1 <- residuals(lm1))
-
-
-test.bgg2$pred_lm2 <- predict(lm2, newdata = test.bgg)
-test.bgg2$residual_lm2 <- residuals(lm2)
-
-test.bgg2$pred_lm3 <- predict(lm3, newdata = test.bgg)
-test.bgg2$residual_lm3 <- residuals(lm3)
 
 str(test.bgg2)
 ```
@@ -267,7 +264,7 @@ str(test.bgg2)
 Create a function called `MAE.func()` that returns the mean absolute error based on a vector of the residuals and test your function on the vector called `test`.
 
 Solution 1:
-```{r,eval=F}
+```{r,eval=T}
 test=c(-5,-2,0,3,5)
 
 MAE.func <- function(c) {
@@ -282,19 +279,44 @@ MAE.func(test)
 
 Use your function on the `test.bgg2` to calculate the out-of-sample MAE of all three models based on the associated residuals. Make sure you display the mean absolute error from these different models in your output.
 
-```{r,eval=F}
-
+```{r,eval=T}
+bgg2MAE = test.bgg2 %>% 
+  select(LM1Res, LM2Res, LM3Res)  
+apply(bgg2MAE, 2, MAE.func)
 ```
 
 **Question:** Which model does the best job at predicting the geek rating of these board games?
 
-YOUR ANSWER IN COMPLETE SENTENCES
+The model that best predicts the geek rating of these board games is Linear Model 3.
 
 ### Q8 (3 Points)
 
 For the third model only, use 10-fold cross-validation and measure the out-of-sample mean absolute error. Print out the final cross-validated mean absolute error.
 
-```{r,eval=F}
+```{r,eval=T}
+data1=na.omit(test.bgg2) %>% 
+  crossv_kfold(10)
+train.model.func = function(data, i, j){
+  mod=lm(geek_rating ~ log(owned) + vote.per.year + weight, data = data)
+  return(mod)
+}
+
+
+data2=data1 %>%
+  mutate(tr.model=map(train,train.model.func, i=i, j=j))
+data2predict = data2 %>% 
+    mutate(predict=map2(test,tr.model,~augment(.y,newdata=.x))) %>%
+  select(predict) %>%
+  unnest(cols = c(predict))
+
+
+rmse.func= function(actual,predict){
+  mse= mean((actual-predict)^2, na.rm = T)
+  rmse = sqrt(mse)
+  return(rmse)
+}
+
+rmse.func(actual = data2predict$geek_rating, predict = data2predict$.fitted)
 
 
 ```
@@ -302,3 +324,5 @@ For the third model only, use 10-fold cross-validation and measure the out-of-sa
 **Question:** What is the absolute difference between the out-of-sample mean absolute error measured using a test set and the mean absolute error measured using cross validation? When you type your answer in complete sentences use inline R code to calculate the absolute difference and input it directly into your sentence.
 
 YOUR ANSWER IN COMPLETE SENTENCES
+
+The absolute difference between the out-of-sample MAE with the test set and the MAE with the cross validation was `r abs(MAE.func(bgg2MAE$LM3Res)-rmse.func(actual = data2predict$geek_rating, predict = data2predict$.fitted))`

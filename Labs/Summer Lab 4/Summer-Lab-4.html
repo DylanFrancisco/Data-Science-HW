@@ -391,7 +391,7 @@ distribution (this is the normal distribution with the mean equal to
 the first five random observations in this vector.</p>
 <pre class="r"><code>x &lt;- rnorm(100, mean = 0, sd = 1)
 print(x[1:5])</code></pre>
-<pre><code>## [1] -0.3079064  1.8028215  0.8713387  1.7288667  1.1560739</code></pre>
+<pre><code>## [1]  0.40825977 -0.01882674 -1.03654267  0.50032139  0.54055477</code></pre>
 </div>
 <div id="points-1" class="section level3">
 <h3>1.2 (2 points)</h3>
@@ -403,7 +403,7 @@ that are smaller than <code>0</code> with a string of characters
 out the first five values in this new version of <code>x</code>.</p>
 <pre class="r"><code>x &lt;- ifelse(x &gt;= 0, &quot;non-negative&quot;, &quot;negative&quot;)
 print(x[1:5])</code></pre>
-<pre><code>## [1] &quot;negative&quot;     &quot;non-negative&quot; &quot;non-negative&quot; &quot;non-negative&quot; &quot;non-negative&quot;</code></pre>
+<pre><code>## [1] &quot;non-negative&quot; &quot;negative&quot;     &quot;negative&quot;     &quot;non-negative&quot; &quot;non-negative&quot;</code></pre>
 </div>
 <div id="points-2" class="section level3">
 <h3>1.3 (2 points)</h3>
@@ -426,9 +426,9 @@ for (i in 1:length(x)) {
 }
 
 cat(&quot;The number of non-negative observations is&quot;, nonNegativeCount, &quot;\n&quot;)</code></pre>
-<pre><code>## The number of non-negative observations is 55</code></pre>
+<pre><code>## The number of non-negative observations is 46</code></pre>
 <pre class="r"><code>cat(&quot;The number of negative observations is&quot;, negativeCount)</code></pre>
-<pre><code>## The number of negative observations is 45</code></pre>
+<pre><code>## The number of negative observations is 54</code></pre>
 </div>
 </div>
 <div id="part-2-matrix-and-control-structures" class="section level2">
@@ -729,18 +729,46 @@ predictions and residuals different names. Use the <code>str()</code>
 function to show these variables were created</p>
 <pre class="r"><code>test.bgg2 &lt;- test.bgg %&gt;% 
 
+  add_predictions(lm1, var = &quot;LM1Pred&quot;) %&gt;% 
+  add_predictions(lm2, var = &quot;LM2Pred&quot;) %&gt;% 
+  add_predictions(lm3, var = &quot;LM3Pred&quot;) %&gt;% 
+  add_residuals(lm1, var = &quot;LM1Res&quot;) %&gt;%   
+  add_residuals(lm2, var = &quot;LM2Res&quot;) %&gt;%   
+  add_residuals(lm3, var = &quot;LM3Res&quot;) 
 
-transmute(&quot;Model 1 Prediction&quot; = predict(lm1, newdata = test.bgg)) %&gt;% 
-mutate(test.bgg2$residual_lm1 &lt;- residuals(lm1))
-
-
-test.bgg2$pred_lm2 &lt;- predict(lm2, newdata = test.bgg)
-test.bgg2$residual_lm2 &lt;- residuals(lm2)
-
-test.bgg2$pred_lm3 &lt;- predict(lm3, newdata = test.bgg)
-test.bgg2$residual_lm3 &lt;- residuals(lm3)
 
 str(test.bgg2)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    986 obs. of  30 variables:
+##  $ names        : chr  &quot;Great Western Trail&quot; &quot;Puerto Rico&quot; &quot;Agricola&quot; &quot;Mage Knight Board Game&quot; ...
+##  $ min_players  : int  2 2 1 1 2 1 2 2 1 2 ...
+##  $ max_players  : int  4 5 5 4 4 4 2 5 8 6 ...
+##  $ avg_time     : int  150 150 150 240 240 120 45 150 240 240 ...
+##  $ min_time     : int  75 90 30 60 240 30 45 60 120 120 ...
+##  $ max_time     : int  150 150 150 240 240 120 45 150 240 240 ...
+##  $ year         : int  2016 2002 2007 2011 2006 2016 2012 2005 2013 2010 ...
+##  $ avg_rating   : num  8.29 8.06 8.02 8.12 8.03 ...
+##  $ geek_rating  : num  8.04 7.95 7.92 7.92 7.85 ...
+##  $ num_votes    : int  13521 52849 53481 21524 16329 8145 22767 23494 20599 14262 ...
+##  $ age          : int  12 12 12 14 12 12 14 12 14 14 ...
+##  $ mechanic     : chr  &quot;Deck / Pool Building, Hand Management, Point to Point Movement&quot; &quot;Variable Phase Order&quot; &quot;Area Enclosure, Card Drafting, Hand Management, Variable Player Powers, Worker Placement&quot; &quot;Card Drafting, Co-operative Play, Deck / Pool Building, Dice Rolling, Grid Movement, Hand Management, Modular B&quot;| __truncated__ ...
+##  $ owned        : int  16869 61011 64468 31976 16397 10846 35645 23855 30839 14703 ...
+##  $ category     : chr  &quot;American West&quot; &quot;City Building, Economic, Farming&quot; &quot;Animals, Economic, Farming&quot; &quot;Adventure, Exploration, Fantasy, Fighting&quot; ...
+##  $ designer     : chr  &quot;Alexander Pfister&quot; &quot;Andreas Seyfarth&quot; &quot;Uwe Rosenberg&quot; &quot;Vlaada Chvátil&quot; ...
+##  $ weight       : num  3.7 3.29 3.63 4.24 4.17 ...
+##  $ duration     : num  3 17 12 8 13 3 7 14 6 9 ...
+##  $ vote.per.year: num  4507 3109 4457 2690 1256 ...
+##  $ own.per.year : num  5623 3589 5372 3997 1261 ...
+##  $ player.range : int  2 3 4 3 2 3 0 3 7 4 ...
+##  $ log_vote     : num  9.51 10.88 10.89 9.98 9.7 ...
+##  $ log_own      : num  9.73 11.02 11.07 10.37 9.7 ...
+##  $ diff_rating  : num  0.2453 0.112 0.0985 0.2026 0.1775 ...
+##  $ Set          : chr  &quot;Test&quot; &quot;Test&quot; &quot;Test&quot; &quot;Test&quot; ...
+##  $ LM1Pred      : num  7.03 7.47 7.48 7.18 7.09 ...
+##  $ LM2Pred      : num  6.97 7.43 7.45 7.2 6.96 ...
+##  $ LM3Pred      : num  7.76 7.81 8.12 7.65 7.18 ...
+##  $ LM1Res       : num  1.011 0.476 0.447 0.735 0.76 ...
+##  $ LM2Res       : num  1.068 0.521 0.477 0.717 0.889 ...
+##  $ LM3Res       : num  0.284 0.143 -0.194 0.263 0.669 ...</code></pre>
 </div>
 <div id="q6-0.5-points" class="section level3">
 <h3>Q6 (0.5 Points)</h3>
@@ -756,6 +784,7 @@ MAE.func &lt;- function(c) {
 }
 
 MAE.func(test)</code></pre>
+<pre><code>## [1] 3</code></pre>
 </div>
 <div id="q7-1-point" class="section level3">
 <h3>Q7 (1 Point)</h3>
@@ -763,21 +792,53 @@ MAE.func(test)</code></pre>
 out-of-sample MAE of all three models based on the associated residuals.
 Make sure you display the mean absolute error from these different
 models in your output.</p>
+<pre class="r"><code>bgg2MAE = test.bgg2 %&gt;% 
+  select(LM1Res, LM2Res, LM3Res)  
+apply(bgg2MAE, 2, MAE.func)</code></pre>
+<pre><code>##    LM1Res    LM2Res    LM3Res 
+## 0.1899382 0.2009498 0.1745277</code></pre>
 <p><strong>Question:</strong> Which model does the best job at
 predicting the geek rating of these board games?</p>
-<p>YOUR ANSWER IN COMPLETE SENTENCES</p>
+<p>The model that best predicts the geek rating of these board games is
+Linear Model 3.</p>
 </div>
 <div id="q8-3-points" class="section level3">
 <h3>Q8 (3 Points)</h3>
 <p>For the third model only, use 10-fold cross-validation and measure
 the out-of-sample mean absolute error. Print out the final
 cross-validated mean absolute error.</p>
+<pre class="r"><code>data1=na.omit(test.bgg2) %&gt;% 
+  crossv_kfold(10)
+train.model.func = function(data, i, j){
+  mod=lm(geek_rating ~ log(owned) + vote.per.year + weight, data = data)
+  return(mod)
+}
+
+
+data2=data1 %&gt;%
+  mutate(tr.model=map(train,train.model.func, i=i, j=j))
+data2predict = data2 %&gt;% 
+    mutate(predict=map2(test,tr.model,~augment(.y,newdata=.x))) %&gt;%
+  select(predict) %&gt;%
+  unnest(cols = c(predict))
+
+
+rmse.func= function(actual,predict){
+  mse= mean((actual-predict)^2, na.rm = T)
+  rmse = sqrt(mse)
+  return(rmse)
+}
+
+rmse.func(actual = data2predict$geek_rating, predict = data2predict$.fitted)</code></pre>
+<pre><code>## [1] 0.2274096</code></pre>
 <p><strong>Question:</strong> What is the absolute difference between
 the out-of-sample mean absolute error measured using a test set and the
 mean absolute error measured using cross validation? When you type your
 answer in complete sentences use inline R code to calculate the absolute
 difference and input it directly into your sentence.</p>
 <p>YOUR ANSWER IN COMPLETE SENTENCES</p>
+<p>The absolute difference between the out-of-sample MAE with the test
+set and the MAE with the cross validation was 0.0528819</p>
 </div>
 </div>
 </div>
