@@ -1,0 +1,96 @@
+---
+title: "Homework 7"
+author: "Dylan Francisco"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,4 (Pg. 358); 1,4 (Pgs. 371)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(modelr)
+```
+
+
+# Chapter 18 (Pg. 358)
+
+##  Exercise 1
+```{r}
+sim1_loess <- loess(y ~ x, data = sim1)
+grid_loess <- sim1 %>% 
+  data_grid(x)
+grid_loess <- grid_loess %>% 
+  add_predictions(sim1_loess)
+ggplot(sim1, aes(x, y)) +
+  geom_point() +
+  geom_line(data = grid_loess, aes(y = pred), color = "red", size = 1)
+
+```
+
+The major difference between using loess() and lm() is the slope of the model. The linear model has a constant slope, while the loess() function has a curved model to fit the data. Doing this can be tricky if you don't have a good explanation as to why the model changes and slopes as x increases.
+
+##  Exercise 4
+```{r}
+sim1 <- sim1 %>%
+  add_residuals(sim1_loess)
+
+ggplot(sim1, aes(resid)) +
+  geom_freqpoly(binwidth = 0.5)
+
+ggplot(sim1, aes(x, resid)) +
+  geom_ref_line(h = 0) +
+  geom_point()
+```
+
+The pros of looking at the frequency polygon are that is focuses on the count or magnitude of the residuals, which makes it easier to get an overall undertaking of the size of the errors. However, the downside is that when you look only at the frequency polygon, you may loose the ability to directly show how much the model correctly estimates the results. The random noise that is shown on the scatterplot does a good job of showinf us that the model did a goob job at capturing patterns.
+
+# Chapter 18 (Pg. 371)
+
+##  Exercise 1
+```{r}
+mod2_no_intercept <- lm(y ~ 0+x , data = sim2)
+mod2_intercept <- lm(y ~ x, data = sim2)
+
+grid_mod2_intercept <- sim2 %>% 
+  data_grid(x) %>% 
+  add_predictions(mod2_intercept)
+
+grid_mod2 <- sim2 %>% 
+  data_grid(x) %>% 
+  add_predictions(mod2_no_intercept)
+
+summary(grid_mod2)
+summary(grid_mod2_intercept)
+
+ggplot(sim2, aes(x, y)) +
+  geom_point() +
+  geom_point(data = grid_mod2_intercept, aes(y = pred), color = "red", size = 4) +
+  geom_point(data = grid_mod2, aes(y = pred), color = "blue", size = 4)
+```
+
+When looking at both models, it does not seem like the intercept had any effect on the predictions. The intercept column does get removed from the model, but the predications remain unchanged.
+
+##  Exercise 4
+```{r}
+mod1 <- lm(y ~ x1 + x2, data = sim4)
+mod2 <- lm(y ~ x1 * x2, data = sim4)
+
+sim4mod <- sim4 %>% 
+  gather_residuals(mod1, mod2)
+
+ggplot(sim4mod, aes(x1, resid)) +
+  geom_smooth(method = "loess") +
+  facet_grid(model ~ x2)
+```
+
+
+When looking at mod1 and mod2, we can see that the larger deviations from 0 correspond to greater residuals. We can see that mod2 has less deviation from 0.
